@@ -617,7 +617,6 @@ body.is-playing .pages { padding: 0; }
 }
 
 @media (max-width: 760px) {
-  .bottomnav--6 { grid-template-columns: repeat(6, 1fr); }
   .exam-hero { padding: 20px 18px; border-radius: var(--r-lg); }
   .exam-hero__title { font-size: 19px; }
   .exam-hero__actions .btn { min-width: 0; }
