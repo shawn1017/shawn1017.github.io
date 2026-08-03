@@ -8,12 +8,12 @@
   var store = Q.store, ui = Q.ui, fx = Q.fx, engine = Q.engine, P = Q.pages;
   var I = ui.I, esc = ui.esc;
 
-  var ROUTES = ['home', 'tasks', 'exam', 'examPlay', 'growth', 'review', 'ai'];
+  var ROUTES = ['home', 'tasks', 'exam', 'examPlay', 'growth', 'review'];
   // 底部/侧边导航里可见的页面（examPlay 是沉浸答题页，不出现在导航里）
-  var NAV_ROUTES = ['home', 'tasks', 'exam', 'growth', 'review', 'ai'];
+  var NAV_ROUTES = ['home', 'tasks', 'exam', 'growth', 'review'];
   var TITLES = {
     home: '我的每日挑战', tasks: '任务中心', exam: '考试闯关',
-    examPlay: '闯关答题中', growth: '我的成长', review: '每日复盘', ai: 'AI 助手'
+    examPlay: '闯关答题中', growth: '我的成长', review: '每日复盘'
   };
   var current = 'home';
 
@@ -364,14 +364,17 @@
           render(current, true);
           break;
 
-        /* ---------- AI 独立页面 ---------- */
+        /* ---------- AI 抽屉 ---------- */
+        case 'ai-open':   openAIDrawer(); break;
+        case 'ai-close':  closeAIDrawer(); break;
+
+        /* ---------- AI 抽屉内容 ---------- */
         case 'ai-gear':
           openAISettings();
           break;
         case 'ai-tab':
           P.aiPageState.mode = el.dataset.mode;
-          render('ai', true);
-          if (P.aiPageState.mode === 'chat') scrollChat();
+          renderAI();
           break;
         case 'ai-coach-run':
           aiRunCoach();
@@ -407,6 +410,10 @@
 
     var setBtn = document.getElementById('btn-settings');
     if (setBtn) setBtn.addEventListener('click', openSettings);
+
+    // AI 抽屉：点击遮罩关闭
+    var scrim = document.getElementById('ai-scrim');
+    if (scrim) scrim.addEventListener('click', closeAIDrawer);
 
     // 输入事件
     document.addEventListener('input', function (e) {
@@ -470,6 +477,14 @@
     document.addEventListener('keydown', function (e) {
       if (e.target && e.target.id === 'ai-compose') {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+      }
+    });
+
+    // AI 抽屉：Esc 关闭（不受输入框焦点影响）
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isAIDrawerOpen()) {
+        e.preventDefault();
+        closeAIDrawer();
       }
     });
 
@@ -636,7 +651,43 @@
     fx.toast('已加入 ' + added + ' 个任务（紧急 ' + byBucket.urgent + ' · 今日 ' + byBucket.today + ' · 仓库 ' + byBucket.inbox + '）', { duration: 3600 });
   }
 
-  /* ---------------- AI 独立页面 ---------------- */
+  /* ---------------- AI 抽屉 ---------------- */
+  function renderAI() {
+    var body = document.getElementById('ai-drawer-body');
+    if (!body) return;
+    body.innerHTML = P.render.ai();
+    if (P.aiPageState.mode === 'chat') scrollChat();
+  }
+
+  function openAIDrawer() {
+    var drawer = document.getElementById('ai-drawer');
+    var scrim = document.getElementById('ai-scrim');
+    if (!drawer) return;
+    renderAI();
+    drawer.hidden = false;
+    scrim.hidden = false;
+    void drawer.offsetWidth; // 强制回流，确保过渡生效
+    drawer.classList.add('is-open');
+    scrim.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    fx.sfx.tap();
+  }
+
+  function closeAIDrawer() {
+    var drawer = document.getElementById('ai-drawer');
+    var scrim = document.getElementById('ai-scrim');
+    if (!drawer) return;
+    drawer.classList.remove('is-open');
+    scrim.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    setTimeout(function () { drawer.hidden = true; scrim.hidden = true; }, 300);
+  }
+
+  function isAIDrawerOpen() {
+    var d = document.getElementById('ai-drawer');
+    return !!(d && d.classList.contains('is-open'));
+  }
+
   function scrollChat() {
     var c = document.getElementById('aip-chat');
     if (c) c.scrollTop = c.scrollHeight;
@@ -645,18 +696,18 @@
   function aiRunCoach() {
     var st = P.aiPageState;
     if (st.busy) return;
-    st.busy = true; render('ai', true);
+    st.busy = true; renderAI();
     var done = function () {
       st.busy = false;
       st.coach = Q.ai.examCoach();
-      render('ai', true);
+      renderAI();
       fx.sfx.tap();
     };
     if (Q.exam && Q.exam.init && !Q.exam.ready()) {
       Q.exam.init().then(done, function () {
         st.busy = false;
         st.coach = { ok: false, message: '题库加载失败，请先在「考试闯关」里等待题库就绪后再试。' };
-        render('ai', true);
+        renderAI();
       });
     } else {
       setTimeout(done, 360);
@@ -666,11 +717,11 @@
   function aiRunPlan() {
     var st = P.aiPageState;
     if (st.busy) return;
-    st.busy = true; render('ai', true);
+    st.busy = true; renderAI();
     setTimeout(function () {
       st.busy = false;
       st.plan = Q.ai.taskPlan();
-      render('ai', true);
+      renderAI();
       fx.sfx.tap();
     }, 320);
   }
@@ -684,7 +735,7 @@
     st.chat.push({ role: 'user', text: text });
     st.busy = true;
     st.chat.push({ role: 'bot', typing: true });
-    render('ai', true);
+    renderAI();
     scrollChat();
 
     Q.ai.chat(text, {
@@ -693,14 +744,14 @@
       st.chat = st.chat.filter(function (m) { return !m.typing; });
       st.chat.push({ role: 'bot', text: reply });
       st.busy = false;
-      render('ai', true);
+      renderAI();
       scrollChat();
       fx.sfx.tap();
     }).catch(function (e) {
       st.chat = st.chat.filter(function (m) { return !m.typing; });
       st.chat.push({ role: 'bot', err: true, text: (e && e.message) || '出错了，请稍后再试。' });
       st.busy = false;
-      render('ai', true);
+      renderAI();
       scrollChat();
     });
   }
@@ -757,7 +808,7 @@
       });
       fx.toast('已保存 · 仅存本机');
       m.close();
-      if (current === 'ai') render('ai', true);
+      renderAI();
     });
     m.find('[data-ai-clear]').addEventListener('click', function () {
       Q.ai.clear();
@@ -767,7 +818,7 @@
       m.find('#ai-key').value = '';
       var mask = m.find('.ai-mask'); if (mask) mask.remove();
       fx.toast('已清空联网设置');
-      if (current === 'ai') render('ai', true);
+      renderAI();
     });
   }
 

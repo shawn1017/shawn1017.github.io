@@ -66,7 +66,7 @@
         <em class="nav__hint">今日总结</em>
         <span class="nav__dot" hidden></span>
       </button>
-      <button class="nav__item" data-route="ai">
+      <button class="nav__item" data-act="ai-open" title="AI 助手（左侧抽屉）">
         <svg viewBox="0 0 24 24" class="nav__icon"><path d="M12 2.5 14.2 8 19.5 9.4l-4.3 4 1.1 6.2L12 17.4 7.7 19.6 8.8 13.4l-4.3-4L10 8Z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7Z" opacity=".55"/></svg>
         <span>AI 助手</span>
         <em class="nav__hint">离线优先 · 可联网</em>
@@ -105,7 +105,6 @@
       <section class="page page--play" id="page-examPlay" data-page="examPlay" hidden></section>
       <section class="page" id="page-growth" data-page="growth" hidden></section>
       <section class="page" id="page-review" data-page="review" hidden></section>
-      <section class="page" id="page-ai" data-page="ai" hidden></section>
     </div>
   </main>
 
@@ -132,12 +131,18 @@
       <span>复盘</span>
       <span class="bnav__dot" hidden></span>
     </button>
-    <button class="bnav__item" data-route="ai">
+    <button class="bnav__item" data-act="ai-open" title="AI 助手（左侧抽屉）">
       <span class="bnav__icon"><svg viewBox="0 0 24 24"><path d="M12 2.5 14.2 8 19.5 9.4l-4.3 4 1.1 6.2L12 17.4 7.7 19.6 8.8 13.4l-4.3-4L10 8Z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7Z" opacity=".55"/></svg></span>
       <span>AI</span>
     </button>
   </nav>
 </div>
+
+<!-- ─────────── AI 助手抽屉（左侧侧拉） ─────────── -->
+<div class="ai-drawer-scrim" id="ai-scrim" hidden></div>
+<aside class="ai-drawer" id="ai-drawer" aria-hidden="true" hidden>
+  <div class="ai-drawer__body" id="ai-drawer-body"></div>
+</aside>
 
 <!-- overlays -->
 <canvas id="fx-canvas" aria-hidden="true"></canvas>
