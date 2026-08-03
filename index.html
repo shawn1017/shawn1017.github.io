@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F7FB">
+<meta name="description" content="Questly · 游戏化个人效率工作台，把每天的待办变成一场可以通关的挑战。">
+<title>Questly · 我的每日挑战</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/exam.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<!-- ambient background -->
+<div class="aurora" aria-hidden="true">
+  <span class="aurora__blob aurora__blob--a"></span>
+  <span class="aurora__blob aurora__blob--b"></span>
+  <span class="aurora__blob aurora__blob--c"></span>
+  <span class="aurora__grid"></span>
+</div>
+
+<div class="app" id="app">
+
+  <!-- ─────────── desktop sidebar ─────────── -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14.9 8.6l6.6.95-4.8 4.7 1.15 6.65L12 17.75 6.15 20.9 7.3 14.25 2.5 9.55l6.6-.95L12 2.5Z" fill="url(#bg1)"/><defs><linearGradient id="bg1" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#6366F1"/></linearGradient></defs></svg>
+      </span>
+      <span class="brand__text">
+        <b>Questly</b>
+        <i>个人效率工作台</i>
+      </span>
+    </div>
+
+    <nav class="nav" id="nav-desktop" aria-label="主导航">
+      <button class="nav__item is-active" data-route="home">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M4 11.2 12 4.5l8 6.7V19a1.2 1.2 0 0 1-1.2 1.2h-4.3v-5.1H9.5v5.1H5.2A1.2 1.2 0 0 1 4 19v-7.8Z"/></svg>
+        <span>首页</span>
+        <em class="nav__hint">每日挑战</em>
+      </button>
+      <button class="nav__item" data-route="tasks">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M4.5 5.2h6.2v13.6H4.5zM13.3 5.2h6.2v8.1h-6.2z"/></svg>
+        <span>任务</span>
+        <em class="nav__hint">任务中心</em>
+      </button>
+      <button class="nav__item nav__item--exam" data-route="exam">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M12 2.2 20.4 5v6.4c0 4.6-3.3 8.5-8.4 10.4C6.9 19.9 3.6 16 3.6 11.4V5Zm-.9 12.6 5.3-5.3-1.4-1.4-3.9 3.9-1.9-1.9-1.4 1.4Z"/></svg>
+        <span>考试闯关</span>
+        <em class="nav__hint">本周考试副本</em>
+        <span class="nav__pill" id="nav-exam-pill" hidden></span>
+      </button>
+      <button class="nav__item" data-route="growth">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M4.6 18.6 9.4 12l3.4 3.9 5-8.2 2.1 1.3-6.6 10.9-3.5-4-3.1 4.3z"/><path d="M3.4 20.2h17.2v1.9H3.4z"/></svg>
+        <span>成长</span>
+        <em class="nav__hint">等级与成就</em>
+      </button>
+      <button class="nav__item" data-route="review">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M6 3.4h9.2L20 8.1V20a1.2 1.2 0 0 1-1.2 1.2H6A1.2 1.2 0 0 1 4.8 20V4.6A1.2 1.2 0 0 1 6 3.4Zm2 8h8v1.8H8zm0 3.8h5.6V17H8z"/></svg>
+        <span>复盘</span>
+        <em class="nav__hint">今日总结</em>
+        <span class="nav__dot" hidden></span>
+      </button>
+    </nav>
+
+    <div class="sidebar__spacer"></div>
+
+    <div class="sidebar__level" id="sidebar-level"><!-- rendered --></div>
+
+    <button class="sidebar__reset" id="btn-settings" title="数据与设置">
+      <svg viewBox="0 0 24 24"><path d="M12 15.4a3.4 3.4 0 1 1 0-6.8 3.4 3.4 0 0 1 0 6.8Zm8.3-2.2.1-1.2-.1-1.2 2-1.5-1.9-3.3-2.4.8a7.6 7.6 0 0 0-2-1.2L15.6 3H8.4l-.4 2.6c-.7.3-1.4.7-2 1.2l-2.4-.8L1.7 9.3l2 1.5a9 9 0 0 0 0 2.4l-2 1.5 1.9 3.3 2.4-.8c.6.5 1.3.9 2 1.2l.4 2.6h7.2l.4-2.6c.7-.3 1.4-.7 2-1.2l2.4.8 1.9-3.3-2-1.5Z"/></svg>
+      <span>数据与设置</span>
+    </button>
+  </aside>
+
+  <!-- ─────────── main ─────────── -->
+  <main class="main" id="main">
+    <header class="topbar">
+      <span class="topbar__brand">
+        <span class="brand__mark brand__mark--sm" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14.9 8.6l6.6.95-4.8 4.7 1.15 6.65L12 17.75 6.15 20.9 7.3 14.25 2.5 9.55l6.6-.95L12 2.5Z" fill="url(#bg2)"/><defs><linearGradient id="bg2" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#6366F1"/></linearGradient></defs></svg>
+        </span>
+        <b id="topbar-title">我的每日挑战</b>
+      </span>
+      <span class="topbar__xp" id="topbar-xp"></span>
+    </header>
+
+    <div class="pages" id="pages">
+      <section class="page" id="page-home" data-page="home"></section>
+      <section class="page" id="page-tasks" data-page="tasks" hidden></section>
+      <section class="page" id="page-exam" data-page="exam" hidden></section>
+      <section class="page page--play" id="page-examPlay" data-page="examPlay" hidden></section>
+      <section class="page" id="page-growth" data-page="growth" hidden></section>
+      <section class="page" id="page-review" data-page="review" hidden></section>
+    </div>
+  </main>
+
+  <!-- ─────────── mobile bottom nav ─────────── -->
+  <nav class="bottomnav bottomnav--6" id="nav-mobile" aria-label="底部导航">
+    <button class="bnav__item is-active" data-route="home">
+      <svg viewBox="0 0 24 24"><path d="M4 11.2 12 4.5l8 6.7V19a1.2 1.2 0 0 1-1.2 1.2h-4.3v-5.1H9.5v5.1H5.2A1.2 1.2 0 0 1 4 19v-7.8Z"/></svg>
+      <span>首页</span>
+    </button>
+    <button class="bnav__item" data-route="tasks">
+      <svg viewBox="0 0 24 24"><path d="M4.5 5.2h6.2v13.6H4.5zM13.3 5.2h6.2v8.1h-6.2z"/></svg>
+      <span>任务</span>
+    </button>
+    <button class="bnav__item bnav__item--exam" data-route="exam">
+      <svg viewBox="0 0 24 24"><path d="M12 2.2 20.4 5v6.4c0 4.6-3.3 8.5-8.4 10.4C6.9 19.9 3.6 16 3.6 11.4V5Zm-.9 12.6 5.3-5.3-1.4-1.4-3.9 3.9-1.9-1.9-1.4 1.4Z"/></svg>
+      <span>闯关</span>
+    </button>
+    <button class="bnav__fab" id="btn-quick-add" aria-label="快速新增任务">
+      <svg viewBox="0 0 24 24"><path d="M11 5h2v14h-2z"/><path d="M5 11h14v2H5z"/></svg>
+    </button>
+    <button class="bnav__item" data-route="growth">
+      <svg viewBox="0 0 24 24"><path d="M4.6 18.6 9.4 12l3.4 3.9 5-8.2 2.1 1.3-6.6 10.9-3.5-4-3.1 4.3z"/><path d="M3.4 20.2h17.2v1.9H3.4z"/></svg>
+      <span>成长</span>
+    </button>
+    <button class="bnav__item" data-route="review">
+      <svg viewBox="0 0 24 24"><path d="M6 3.4h9.2L20 8.1V20a1.2 1.2 0 0 1-1.2 1.2H6A1.2 1.2 0 0 1 4.8 20V4.6A1.2 1.2 0 0 1 6 3.4Zm2 8h8v1.8H8zm0 3.8h5.6V17H8z"/></svg>
+      <span>复盘</span>
+      <span class="bnav__dot" hidden></span>
+    </button>
+  </nav>
+</div>
+
+<!-- overlays -->
+<canvas id="fx-canvas" aria-hidden="true"></canvas>
+<div id="float-root" aria-hidden="true"></div>
+<div id="toast-root" role="status" aria-live="polite"></div>
+<div id="modal-root"></div>
+
+<script src="js/store.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/exampages.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

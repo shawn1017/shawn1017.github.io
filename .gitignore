@@ -1,0 +1,10 @@
+# WorkBuddy 项目记忆（非网站内容，可能含本地信息）
+.workbuddy/
+
+# 单文件离线构建产物（可用 tools/build-offline.mjs 重新生成）
+questly-offline.html
+
+# 系统 / 编辑器
+.DS_Store
+*.swp
+Thumbs.db

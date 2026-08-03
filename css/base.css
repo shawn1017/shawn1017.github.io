@@ -1,0 +1,230 @@
+/* ============================================================
+   base.css — 设计令牌 / 重置 / 排版
+   ============================================================ */
+
+:root {
+  /* surfaces */
+  --bg:            #F5F6FB;
+  --surface:       #FFFFFF;
+  --surface-2:     #FAFBFD;
+  --surface-3:     #F2F4F9;
+  --border:        #E9EBF2;
+  --border-soft:   #F0F2F7;
+  --border-strong: #DCE0EA;
+
+  /* text */
+  --text:   #12141A;
+  --text-2: #565E70;
+  --text-3: #8C93A5;
+  --text-4: #AEB4C2;
+
+  /* brand */
+  --brand:       #6366F1;
+  --brand-600:   #5457E8;
+  --brand-2:     #8B5CF6;
+  --brand-3:     #EC4899;
+  --brand-soft:  #EFF0FE;
+  --brand-soft-2:#F5F0FE;
+  --grad-brand:  linear-gradient(135deg, #6366F1 0%, #8B5CF6 52%, #C084FC 100%);
+  --grad-hero:   linear-gradient(120deg, #6366F1 0%, #7C5CF7 40%, #A855F7 72%, #EC4899 100%);
+  --grad-xp:     linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #FDE68A 100%);
+  --grad-quest:  linear-gradient(90deg, #6366F1 0%, #A855F7 60%, #22D3EE 100%);
+
+  /* semantic */
+  --success:      #10B981;
+  --success-2:    #34D399;
+  --success-soft: #E6F9F1;
+  --warn:         #F59E0B;
+  --warn-soft:    #FEF4E3;
+  --danger:       #EF4444;
+  --danger-soft:  #FDECEC;
+  --info:         #0EA5E9;
+  --info-soft:    #E6F5FE;
+  --xp:           #F59E0B;
+
+  /* priority */
+  --p0: #EF4444; --p0-soft: #FDEDED;
+  --p1: #F97316; --p1-soft: #FEF1E7;
+  --p2: #3B82F6; --p2-soft: #EAF2FE;
+  --p3: #94A3B8; --p3-soft: #F1F3F7;
+
+  /* geometry */
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-full: 999px;
+
+  /* elevation */
+  --sh-xs: 0 1px 2px rgba(19, 22, 33, .04);
+  --sh-sm: 0 1px 2px rgba(19, 22, 33, .04), 0 2px 6px rgba(19, 22, 33, .04);
+  --sh-md: 0 2px 4px rgba(19, 22, 33, .03), 0 8px 20px rgba(19, 22, 33, .06);
+  --sh-lg: 0 4px 8px rgba(19, 22, 33, .04), 0 18px 40px rgba(19, 22, 33, .10);
+  --sh-xl: 0 8px 16px rgba(19, 22, 33, .05), 0 32px 70px rgba(19, 22, 33, .14);
+  --sh-brand: 0 6px 18px rgba(99, 102, 241, .28);
+  --sh-glow: 0 0 0 4px rgba(99, 102, 241, .12);
+
+  /* motion */
+  --e-out:   cubic-bezier(.22, 1, .36, 1);
+  --e-in-out:cubic-bezier(.65, 0, .35, 1);
+  --e-spring:cubic-bezier(.34, 1.56, .64, 1);
+  --t-fast: .16s;
+  --t-mid:  .28s;
+  --t-slow: .48s;
+
+  /* layout */
+  --sidebar-w: 252px;
+  --page-max: 1240px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, h5, p, figure { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+svg { display: block; }
+svg:not([fill="none"]) { fill: currentColor; }
+
+a { color: var(--brand); text-decoration: none; }
+
+::selection { background: rgba(99, 102, 241, .18); }
+
+/* ---------- numerals ---------- */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* ---------- scrollbar ---------- */
+* { scrollbar-width: thin; scrollbar-color: #D6DAE4 transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: #D8DCE6;
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: #C2C8D6; background-clip: content-box; }
+
+/* ---------- focus ---------- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- typography helpers ---------- */
+.t-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.t-h1 { font-size: 28px; font-weight: 760; letter-spacing: -.022em; line-height: 1.24; }
+.t-h2 { font-size: 19px; font-weight: 720; letter-spacing: -.014em; line-height: 1.35; }
+.t-h3 { font-size: 15px; font-weight: 680; letter-spacing: -.008em; }
+.t-body { font-size: 13.5px; color: var(--text-2); }
+.t-sm { font-size: 12.5px; color: var(--text-3); }
+.t-xs { font-size: 11.5px; color: var(--text-3); }
+.t-num { font-size: 30px; font-weight: 780; letter-spacing: -.03em; line-height: 1; }
+
+.muted { color: var(--text-3); }
+.grad-text {
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- ambient background ---------- */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .5;
+}
+.aurora__blob--a {
+  width: 620px; height: 620px;
+  top: -240px; left: -140px;
+  background: radial-gradient(circle at 35% 35%, #A5B4FC, transparent 68%);
+  animation: floatA 26s var(--e-in-out) infinite;
+}
+.aurora__blob--b {
+  width: 560px; height: 560px;
+  top: -180px; right: -160px;
+  background: radial-gradient(circle at 60% 40%, #DDD6FE, transparent 66%);
+  animation: floatB 32s var(--e-in-out) infinite;
+}
+.aurora__blob--c {
+  width: 520px; height: 520px;
+  bottom: -260px; left: 34%;
+  background: radial-gradient(circle at 50% 50%, #FBCFE8, transparent 68%);
+  opacity: .34;
+  animation: floatC 38s var(--e-in-out) infinite;
+}
+.aurora__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 12%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 12%, transparent 72%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
