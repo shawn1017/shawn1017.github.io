@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 
-const CSS = ['css/base.css', 'css/layout.css', 'css/components.css', 'css/exam.css', 'css/animations.css'];
-const JS = ['js/store.js', 'js/fx.js', 'js/engine.js', 'js/ui.js', 'js/pages.js', 'js/bank.js', 'js/exam.js', 'js/exampages.js', 'js/app.js'];
+const CSS = ['css/base.css', 'css/layout.css', 'css/components.css', 'css/exam.css', 'css/animations.css', 'css/ai.css'];
+const JS = ['js/store.js', 'js/fx.js', 'js/engine.js', 'js/ui.js', 'js/pages.js', 'js/bank.js', 'js/exam.js', 'js/exampages.js', 'js/ai.js', 'js/app.js'];
 
 const allCss = CSS.map(read).join('\n/* === */\n');
 const allJs = JS.map(read).join('\n/* === */\n').replace(/<\/script>/gi, '<\\/script>');

@@ -8,12 +8,12 @@
   var store = Q.store, ui = Q.ui, fx = Q.fx, engine = Q.engine, P = Q.pages;
   var I = ui.I, esc = ui.esc;
 
-  var ROUTES = ['home', 'tasks', 'exam', 'examPlay', 'growth', 'review'];
+  var ROUTES = ['home', 'tasks', 'exam', 'examPlay', 'growth', 'review', 'ai'];
   // 底部/侧边导航里可见的页面（examPlay 是沉浸答题页，不出现在导航里）
-  var NAV_ROUTES = ['home', 'tasks', 'exam', 'growth', 'review'];
+  var NAV_ROUTES = ['home', 'tasks', 'exam', 'growth', 'review', 'ai'];
   var TITLES = {
     home: '我的每日挑战', tasks: '任务中心', exam: '考试闯关',
-    examPlay: '闯关答题中', growth: '我的成长', review: '每日复盘'
+    examPlay: '闯关答题中', growth: '我的成长', review: '每日复盘', ai: 'AI 助手'
   };
   var current = 'home';
 
@@ -364,6 +364,25 @@
           render(current, true);
           break;
 
+        /* ---------- AI 独立页面 ---------- */
+        case 'ai-gear':
+          openAISettings();
+          break;
+        case 'ai-tab':
+          P.aiPageState.mode = el.dataset.mode;
+          render('ai', true);
+          if (P.aiPageState.mode === 'chat') scrollChat();
+          break;
+        case 'ai-coach-run':
+          aiRunCoach();
+          break;
+        case 'ai-plan-run':
+          aiRunPlan();
+          break;
+        case 'ai-send':
+          sendChat();
+          break;
+
         /* ---------- 复盘 ---------- */
         case 'rv-save':   saveReview(); break;
         case 'rv-import': importGoals(); break;
@@ -393,6 +412,7 @@
     document.addEventListener('input', function (e) {
       var t = e.target;
       if (t.id === 'ai-input') P.aiState.text = t.value;
+      if (t.id === 'ai-compose') P.aiPageState.draft = t.value;
       if (t.id === 'task-search') {
         P.taskFilter.q = t.value;
         clearTimeout(searchTimer);
@@ -443,6 +463,13 @@
           var s = document.getElementById('task-search');
           if (s) s.focus();
         }, 80);
+      }
+    });
+
+    // AI 通用问答：在输入框里 Enter 发送，Shift+Enter 换行
+    document.addEventListener('keydown', function (e) {
+      if (e.target && e.target.id === 'ai-compose') {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
       }
     });
 
@@ -607,6 +634,141 @@
     fx.sfx.clear();
     fx.spawn(global.innerWidth / 2, global.innerHeight * .35, { count: 24, power: 9, size: 7, life: 70 });
     fx.toast('已加入 ' + added + ' 个任务（紧急 ' + byBucket.urgent + ' · 今日 ' + byBucket.today + ' · 仓库 ' + byBucket.inbox + '）', { duration: 3600 });
+  }
+
+  /* ---------------- AI 独立页面 ---------------- */
+  function scrollChat() {
+    var c = document.getElementById('aip-chat');
+    if (c) c.scrollTop = c.scrollHeight;
+  }
+
+  function aiRunCoach() {
+    var st = P.aiPageState;
+    if (st.busy) return;
+    st.busy = true; render('ai', true);
+    var done = function () {
+      st.busy = false;
+      st.coach = Q.ai.examCoach();
+      render('ai', true);
+      fx.sfx.tap();
+    };
+    if (Q.exam && Q.exam.init && !Q.exam.ready()) {
+      Q.exam.init().then(done, function () {
+        st.busy = false;
+        st.coach = { ok: false, message: '题库加载失败，请先在「考试闯关」里等待题库就绪后再试。' };
+        render('ai', true);
+      });
+    } else {
+      setTimeout(done, 360);
+    }
+  }
+
+  function aiRunPlan() {
+    var st = P.aiPageState;
+    if (st.busy) return;
+    st.busy = true; render('ai', true);
+    setTimeout(function () {
+      st.busy = false;
+      st.plan = Q.ai.taskPlan();
+      render('ai', true);
+      fx.sfx.tap();
+    }, 320);
+  }
+
+  function sendChat() {
+    var st = P.aiPageState;
+    var ta = document.getElementById('ai-compose');
+    var text = (ta ? ta.value : st.draft || '').trim();
+    if (!text || st.busy) return;
+    st.draft = '';
+    st.chat.push({ role: 'user', text: text });
+    st.busy = true;
+    st.chat.push({ role: 'bot', typing: true });
+    render('ai', true);
+    scrollChat();
+
+    Q.ai.chat(text, {
+      system: '你是 Questly 的 AI 学习 / 效率助手，语气亲切、简洁、实用。用户正在用一款叫 Questly 的 gamified 个人效率工具，可以帮他规划任务、备考刷题。回答用中文，分点清晰，避免冗长。'
+    }).then(function (reply) {
+      st.chat = st.chat.filter(function (m) { return !m.typing; });
+      st.chat.push({ role: 'bot', text: reply });
+      st.busy = false;
+      render('ai', true);
+      scrollChat();
+      fx.sfx.tap();
+    }).catch(function (e) {
+      st.chat = st.chat.filter(function (m) { return !m.typing; });
+      st.chat.push({ role: 'bot', err: true, text: (e && e.message) || '出错了，请稍后再试。' });
+      st.busy = false;
+      render('ai', true);
+      scrollChat();
+    });
+  }
+
+  function openAISettings() {
+    var s = Q.ai.get();
+    var IC = P.aiIcon;
+    var body = '<div class="ai-set">' +
+      '<div class="ai-set__hint">⚙️ 这些设置只保存在你本机浏览器（localStorage），不会上传到任何服务器。API Key 仅作为请求头发给「你填写的官方接口」，不会出现在消息体或界面里。</div>' +
+      '<div class="ai-field"><label>平台（仅作备注）</label><input id="ai-plat" placeholder="如 OpenAI / DeepSeek / 通义千问" value="' + esc(s.platform) + '"></div>' +
+      '<div class="ai-field"><label>模型名</label><input id="ai-model" placeholder="如 gpt-4o / deepseek-chat" value="' + esc(s.model) + '"></div>' +
+      '<div class="ai-field"><label>API 地址（chat/completions）</label><input id="ai-url" placeholder="https://api.openai.com/v1/chat/completions" value="' + esc(s.apiUrl) + '"></div>' +
+      '<div class="ai-field"><label>API Key</label><div class="ai-keywrap"><input id="ai-key" type="password" placeholder="粘贴你的 key（仅存本机）" value="' + esc(s.apiKey) + '"><button class="ai-eye" data-ai-eye title="显示/隐藏">' + IC.eye + '</button></div></div>' +
+      (s.apiKey ? '<div class="ai-mask">当前 Key：' + esc(Q.ai.maskKey(s.apiKey)) + '</div>' : '') +
+      '<div class="ai-err" id="ai-err"></div>' +
+      '<div class="ai-ok" id="ai-ok"></div>' +
+      '<div class="ai-set__row">' +
+        '<button class="btn btn--soft" data-ai-test>连接测试</button>' +
+        '<button class="btn btn--primary" data-ai-save>保存</button>' +
+      '</div>' +
+      '<div class="ai-set__row">' +
+        '<button class="btn btn--ghost" data-ai-clear style="flex:1">清空设置</button>' +
+      '</div>' +
+    '</div>';
+    var m = ui.modal(
+      '<div class="modal modal--wide"><div class="modal__head">' +
+        '<span class="sec-icon sec-icon--brand">' + IC.gear + '</span><h3>AI 联网设置</h3>' +
+        '<button class="iconbtn" data-close>' + I.x + '</button></div>' +
+        '<div class="modal__body">' + body + '</div></div>'
+    );
+
+    m.find('[data-ai-eye]').addEventListener('click', function () {
+      var inp = m.find('#ai-key');
+      var show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      this.innerHTML = show ? IC.eyeOff : IC.eye;
+    });
+    m.find('[data-ai-test]').addEventListener('click', function () {
+      var errEl = m.find('#ai-err'), okEl = m.find('#ai-ok');
+      errEl.textContent = ''; okEl.textContent = '测试中…';
+      Q.ai.save({
+        platform: m.find('#ai-plat').value, model: m.find('#ai-model').value,
+        apiUrl: m.find('#ai-url').value, apiKey: m.find('#ai-key').value
+      });
+      Q.ai.test().then(function (r) {
+        okEl.textContent = r.ok ? r.message : '';
+        errEl.textContent = r.ok ? '' : r.message;
+      });
+    });
+    m.find('[data-ai-save]').addEventListener('click', function () {
+      Q.ai.save({
+        platform: m.find('#ai-plat').value, model: m.find('#ai-model').value,
+        apiUrl: m.find('#ai-url').value, apiKey: m.find('#ai-key').value
+      });
+      fx.toast('已保存 · 仅存本机');
+      m.close();
+      if (current === 'ai') render('ai', true);
+    });
+    m.find('[data-ai-clear]').addEventListener('click', function () {
+      Q.ai.clear();
+      m.find('#ai-plat').value = '';
+      m.find('#ai-model').value = '';
+      m.find('#ai-url').value = '';
+      m.find('#ai-key').value = '';
+      var mask = m.find('.ai-mask'); if (mask) mask.remove();
+      fx.toast('已清空联网设置');
+      if (current === 'ai') render('ai', true);
+    });
   }
 
   /* ---------------- 复盘 ---------------- */

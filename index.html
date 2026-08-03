@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/exam.css">
+<link rel="stylesheet" href="css/ai.css">
 <link rel="stylesheet" href="css/animations.css">
 </head>
 <body class="is-locked">
@@ -65,6 +66,11 @@
         <em class="nav__hint">今日总结</em>
         <span class="nav__dot" hidden></span>
       </button>
+      <button class="nav__item" data-route="ai">
+        <svg viewBox="0 0 24 24" class="nav__icon"><path d="M12 2.5 14.2 8 19.5 9.4l-4.3 4 1.1 6.2L12 17.4 7.7 19.6 8.8 13.4l-4.3-4L10 8Z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7Z" opacity=".55"/></svg>
+        <span>AI 助手</span>
+        <em class="nav__hint">离线优先 · 可联网</em>
+      </button>
     </nav>
 
     <div class="sidebar__spacer"></div>
@@ -99,6 +105,7 @@
       <section class="page page--play" id="page-examPlay" data-page="examPlay" hidden></section>
       <section class="page" id="page-growth" data-page="growth" hidden></section>
       <section class="page" id="page-review" data-page="review" hidden></section>
+      <section class="page" id="page-ai" data-page="ai" hidden></section>
     </div>
   </main>
 
@@ -124,6 +131,10 @@
       <span class="bnav__icon"><svg viewBox="0 0 24 24"><path d="M6 3.4h9.2L20 8.1V20a1.2 1.2 0 0 1-1.2 1.2H6A1.2 1.2 0 0 1 4.8 20V4.6A1.2 1.2 0 0 1 6 3.4Zm2 8h8v1.8H8zm0 3.8h5.6V17H8z"/></svg></span>
       <span>复盘</span>
       <span class="bnav__dot" hidden></span>
+    </button>
+    <button class="bnav__item" data-route="ai">
+      <span class="bnav__icon"><svg viewBox="0 0 24 24"><path d="M12 2.5 14.2 8 19.5 9.4l-4.3 4 1.1 6.2L12 17.4 7.7 19.6 8.8 13.4l-4.3-4L10 8Z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7Z" opacity=".55"/></svg></span>
+      <span>AI</span>
     </button>
   </nav>
 </div>
@@ -158,6 +169,7 @@
 <script src="js/bank.js"></script>
 <script src="js/exam.js"></script>
 <script src="js/exampages.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

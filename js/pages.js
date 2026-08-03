@@ -8,10 +8,23 @@
   var store = Q.store, ui = Q.ui, fx = Q.fx, engine = Q.engine;
   var I = ui.I, esc = ui.esc;
 
+  // AI 页面独立图标（ui.I 未提供 gear/send/chat 等，这里内联 feather 风格 SVG）
+  var AI_ICON = {
+    gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.7 1.7 0 0 0 .34-1.88 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.11 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.88.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.88V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+  };
+
   var pages = {};
 
   /* 页面级易变状态 */
   var aiState = { text: '', result: null, busy: false, picked: {} };
+  var aiPageState = { mode: 'coach', chat: [], busy: false, draft: '' };
   var taskFilter = { q: '', status: 'all', priority: 'all' };
 
   /* ============================================================
@@ -656,10 +669,118 @@
            '<div class="t-xs" style="margin-top:2px">' + esc(label) + '</div></div>';
   }
 
+  /* ============================================================
+     AI 助手独立页面（方案 B：离线优先 + 综合面板）
+     三个模式：闯关陪练（本地）/ 任务规划（本地）/ 通用问答（可选联网）
+     ============================================================ */
+  function aiTabBtn(mode, icon, label) {
+    return '<button class="aip__tab' + (aiPageState.mode === mode ? ' is-active' : '') + '" data-act="ai-tab" data-mode="' + mode + '">' +
+      icon + '<span>' + label + '</span></button>';
+  }
+
+  function aiCoachHTML() {
+    var st = aiPageState;
+    var lead = '<p class="aip__lead">基于你当前的刷题数据，指出今天最该补的薄弱点。完全本地运行，不联网、不上传。</p>';
+    var run = '<button class="btn btn--primary aip__run" data-act="ai-coach-run">' + I.wand + '分析我的闯关情况</button>';
+    var body = '';
+    if (st.busy && st.mode === 'coach') {
+      body = '<div class="ai__result"><div class="ai__summary"><span class="dots"><i></i><i></i><i></i></span> 正在分析…</div></div>';
+    } else if (st.coach) {
+      if (st.coach.ok) {
+        body = st.coach.tips.map(function (t) {
+          return '<div class="ai__item" style="border:0;padding:12px 14px;background:var(--surface-2)">' + esc(t) + '</div>';
+        }).join('');
+      } else {
+        body = '<div class="aip__offline">' + AI_ICON.warn + '<span>' + esc(st.coach.message) + '</span></div>';
+      }
+    }
+    return lead + body + run;
+  }
+
+  function aiPlanHTML() {
+    var st = aiPageState;
+    var lead = '<p class="aip__lead">把「紧急 / 今日 / 仓库」里现有的任务排出今日推荐顺序，基于本地规则引擎。</p>';
+    var run = '<button class="btn btn--primary aip__run" data-act="ai-plan-run">' + I.target + '生成本日顺序</button>';
+    var body = '';
+    if (st.busy && st.mode === 'plan') {
+      body = '<div class="ai__result"><div class="ai__summary"><span class="dots"><i></i><i></i><i></i></span> 正在排序…</div></div>';
+    } else if (st.plan) {
+      if (st.plan.ok) {
+        var rows = st.plan.order.map(function (o, i) {
+          var t = o.task;
+          var B = store.BUCKETS[t.bucket];
+          var Pr = store.PRIORITIES[t.priority];
+          return '<div class="ai__item" style="animation-delay:' + (i * 40) + 'ms">' +
+            '<span class="goalrow__idx">' + (i + 1) + '</span>' +
+            '<p style="flex:1">' + esc(t.title) + '</p>' +
+            '<span class="chip chip--plain">' + B.emoji + '</span>' +
+            '<span class="chip chip--' + t.priority + '">' + esc(Pr.name) + '</span>' +
+            '<span class="chip chip--plain">' + ui.fmtMin(t.estimate || 30) + '</span>' +
+          '</div>';
+        }).join('');
+        body = '<div class="ai__summary">共 <b>' + st.plan.order.length + '</b> 件待办 · 预计 ' + ui.fmtMin(st.plan.minutes) + '。' +
+          (st.plan.tips && st.plan.tips.length ? ' ' + esc(st.plan.tips[0]) : '') + '</div>' + rows;
+      } else {
+        body = '<div class="aip__offline">' + AI_ICON.warn + '<span>' + esc(st.plan.message) + '</span></div>';
+      }
+    }
+    return lead + body + run;
+  }
+
+  function aiChatHTML() {
+    var st = aiPageState;
+    var hasCloud = Q.ai && Q.ai.hasCloud();
+    var banner = hasCloud ? '' :
+      '<div class="aip__offline">' + AI_ICON.warn +
+        '<span><b>离线模式</b>：尚未配置联网 API。点击右上角齿轮填入即可开启「通用问答」。闯关陪练 / 任务规划无需联网，随时可用。</span>' +
+      '</div>';
+    var msgs;
+    if (!st.chat.length) {
+      msgs = '<div class="aip__empty">' + AI_ICON.chat +
+        '<div>有什么想聊的？<br>问备考策略、让 AI 拆解知识点，或随便唠两句都行。</div></div>';
+    } else {
+      msgs = st.chat.map(function (m) {
+        if (m.typing) return '<div class="aip__msg aip__msg--bot aip__msg--typing"><span></span><span></span><span></span></div>';
+        var cls = 'aip__msg aip__msg--' + m.role + (m.err ? ' is-err' : '');
+        return '<div class="' + cls + '">' + esc(m.text) + '</div>';
+      }).join('');
+    }
+    var compose = '<div class="aip__compose">' +
+      '<textarea id="ai-compose" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）">' + esc(st.draft) + '</textarea>' +
+      '<button class="aip__send" data-act="ai-send" ' + (st.busy ? 'disabled' : '') + ' title="发送">' + AI_ICON.send + '</button>' +
+      '</div>';
+    return banner + '<div class="aip__chat" id="aip-chat">' + msgs + '</div>' + compose;
+  }
+
+  function aiPanelContent() {
+    if (aiPageState.mode === 'coach') return aiCoachHTML();
+    if (aiPageState.mode === 'plan') return aiPlanHTML();
+    return aiChatHTML();
+  }
+
+  pages.ai = function () {
+    return '' +
+      '<div class="aip">' +
+        '<div class="aip__head">' +
+          '<span class="aip__orb">' + I.spark + '</span>' +
+          '<div class="aip__title"><b>AI 助手</b><span>离线优先 · 闯关陪练 / 任务规划 / 通用问答</span></div>' +
+          '<button class="aip__gear" data-act="ai-gear" title="设置联网 API（可选）">' + AI_ICON.gear + '</button>' +
+        '</div>' +
+        '<div class="aip__tabs">' +
+          aiTabBtn('coach', AI_ICON.book, '闯关陪练') +
+          aiTabBtn('plan', AI_ICON.target, '任务规划') +
+          aiTabBtn('chat', AI_ICON.chat, '通用问答') +
+        '</div>' +
+        '<div class="aip__panel" id="aip-panel">' + aiPanelContent() + '</div>' +
+      '</div>';
+  };
+
   /* ---------------- 导出 ---------------- */
   Q.pages = {
     render: pages,
     aiState: aiState,
+    aiPageState: aiPageState,
+    aiIcon: AI_ICON,
     taskFilter: taskFilter,
     aiPanel: aiPanel
   };
