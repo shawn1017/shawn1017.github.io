@@ -905,17 +905,17 @@
 .xpfloat {
   position: fixed;
   z-index: 96;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 820;
   letter-spacing: -.02em;
   color: #F59E0B;
-  text-shadow: 0 2px 12px rgba(245,158,11,.5), 0 0 1px rgba(255,255,255,.9);
+  text-shadow: 0 3px 16px rgba(245,158,11,.65), 0 0 2px rgba(255,255,255,.95);
   pointer-events: none;
-  animation: xpRise 1.15s var(--e-out) both;
+  animation: xpRise 1.25s var(--e-out) both;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.xpfloat--big { font-size: 24px; }
+.xpfloat--big { font-size: 30px; }
 
 /* ─────────── filter bar ─────────── */
 .filterbar {

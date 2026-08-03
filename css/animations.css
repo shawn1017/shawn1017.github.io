@@ -199,10 +199,11 @@
 
 /* ---------- XP 飘出 ---------- */
 @keyframes xpRise {
-  0%   { opacity: 0; transform: translate(-50%, 4px) scale(.6); }
-  16%  { opacity: 1; transform: translate(-50%, -10px) scale(1.22); }
-  32%  { transform: translate(-50%, -18px) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -74px) scale(.94); }
+  0%   { opacity: 0; transform: translate(-50%, 6px) scale(.5); }
+  14%  { opacity: 1; transform: translate(-50%, -12px) scale(1.4); }
+  30%  { transform: translate(-50%, -20px) scale(1.05); }
+  46%  { transform: translate(-50%, -26px) scale(1.12); }
+  100% { opacity: 0; transform: translate(-50%, -88px) scale(.9); }
 }
 
 /* ---------- XP 条增长脉冲 ---------- */

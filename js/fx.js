@@ -141,10 +141,13 @@
     var r = rectOf(el);
     if (!r) return;
     spawn(r.x, r.y, Object.assign({
-      count: 16, power: 6.5, size: 6, spread: Math.PI * 1.5,
-      colors: ['#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#FBBF24'],
-      life: 55, gravity: .22
+      count: 30, power: 10, size: 9, spread: Math.PI * 1.7,
+      colors: ['#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#FBBF24', '#FFFFFF'],
+      life: 80, gravity: .24
     }, opts || {}));
+    // 中心冲击环
+    spawn(r.x, r.y, { count: 1, power: 0, size: 8, shape: 'ring', drag: .9, life: 26, gravity: 0,
+      colors: ['#FFFFFF'] });
   }
 
   /** 今日通关：全屏彩色粒子雨 */
@@ -152,31 +155,35 @@
     if (reduced) return;
     var W = global.innerWidth, H = global.innerHeight;
     // 两侧礼炮
-    spawn(0, H * .74, { count: 46, dir: -Math.PI / 3.4, spread: .9, power: 20, size: 10, life: 150, gravity: .3, drag: .99 });
-    spawn(W, H * .74, { count: 46, dir: -Math.PI + Math.PI / 3.4, spread: .9, power: 20, size: 10, life: 150, gravity: .3, drag: .99 });
-    // 中央爆开
+    spawn(0, H * .74, { count: 70, dir: -Math.PI / 3.4, spread: 1.1, power: 26, size: 13, life: 180, gravity: .32, drag: .99 });
+    spawn(W, H * .74, { count: 70, dir: -Math.PI + Math.PI / 3.4, spread: 1.1, power: 26, size: 13, life: 180, gravity: .32, drag: .99 });
+    // 中央爆开（两次）
     setTimeout(function () {
-      spawn(W / 2, H * .42, { count: 60, power: 14, size: 9, life: 130, gravity: .26 });
-    }, 130);
+      spawn(W / 2, H * .42, { count: 90, power: 18, size: 12, life: 150, gravity: .26 });
+    }, 120);
+    setTimeout(function () {
+      spawn(W / 2, H * .42, { count: 60, power: 22, size: 11, life: 140, gravity: .24 });
+    }, 260);
     // 顶部飘落
     var drops = 0;
     var timer = setInterval(function () {
-      for (var i = 0; i < 10; i++) {
+      for (var i = 0; i < 16; i++) {
         particles.push({
           x: Math.random() * W, y: -14,
-          vx: (Math.random() - .5) * 2.2,
-          vy: 1.4 + Math.random() * 2.6,
-          g: .045, drag: .996,
-          size: 5 + Math.random() * 7,
+          vx: (Math.random() - .5) * 2.6,
+          vy: 1.8 + Math.random() * 3.2,
+          g: .05, drag: .996,
+          size: 6 + Math.random() * 9,
           color: PALETTE[(Math.random() * PALETTE.length) | 0],
           shape: SHAPES[(Math.random() * SHAPES.length) | 0],
-          rot: Math.random() * 6.28, vr: (Math.random() - .5) * .2,
-          life: 200, maxLife: 200
+          rot: Math.random() * 6.28, vr: (Math.random() - .5) * .25,
+          life: 240, maxLife: 240
         });
       }
       start();
-      if (++drops > 16) clearInterval(timer);
-    }, 110);
+      if (++drops > 22) clearInterval(timer);
+    }, 95);
+    shake(14, 420);
   }
 
   /** 升级：金色环形冲击 */
@@ -184,9 +191,28 @@
     if (reduced) return;
     var W = global.innerWidth, H = global.innerHeight;
     spawn(W / 2, H * .40, {
-      count: 54, power: 15, size: 11, life: 120, gravity: .18,
-      colors: ['#F59E0B', '#FBBF24', '#FDE68A', '#FCD34D', '#FFFFFF', '#EC4899']
+      count: 88, power: 20, size: 14, life: 150, gravity: .18,
+      colors: ['#F59E0B', '#FBBF24', '#FDE68A', '#FCD34D', '#FFFFFF', '#EC4899', '#F472B6']
     });
+    // 双层冲击环
+    spawn(W / 2, H * .40, { count: 1, power: 0, size: 10, shape: 'ring', drag: .88, life: 40, gravity: 0, colors: ['#FFFFFF'] });
+    shake(10, 320);
+  }
+
+  /* ---------------- 屏幕抖动 ---------------- */
+  var shakeT = null;
+  function shake(px, ms) {
+    if (reduced) return;
+    var app = document.getElementById('app') || global.document.body;
+    if (!app) return;
+    app.animate(
+      [{ transform: 'translate(0,0)' },
+       { transform: 'translate(' + px + 'px,' + (-px * .6) + 'px)' },
+       { transform: 'translate(' + (-px) + 'px,' + (px * .5) + 'px)' },
+       { transform: 'translate(' + (px * .7) + 'px,' + (px * .4) + 'px)' },
+       { transform: 'translate(0,0)' }],
+      { duration: ms || 360, easing: 'ease-out' }
+    ).onfinish = function () { app.style.transform = ''; };
   }
 
   function rectOf(el) {
@@ -255,6 +281,7 @@
 
   /* ---------------- 音效（WebAudio，极轻量） ---------------- */
   var actx = null, muted = false;
+  var MASTER = 1.9; // 整体音量（用户要求更响一些）
   try { muted = global.localStorage.getItem('questly.muted') === '1'; } catch (e) {}
 
   // Only build/resume the AudioContext after a real user gesture, otherwise
@@ -284,24 +311,25 @@
     var osc = a.createOscillator(), g = a.createGain();
     osc.type = type || 'sine';
     osc.frequency.setValueAtTime(freq, t0);
+    var v = (vol == null ? .07 : vol) * MASTER;
     g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(vol == null ? .07 : vol, t0 + .012);
+    g.gain.linearRampToValueAtTime(v, t0 + .006);
     g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
     osc.connect(g); g.connect(a.destination);
     osc.start(t0); osc.stop(t0 + dur + .02);
   }
 
   var sfx = {
-    complete: function () { tone(660, .13, 'triangle', .06); tone(990, .16, 'triangle', .05, .07); },
-    undo:     function () { tone(420, .12, 'sine', .05); tone(300, .14, 'sine', .04, .06); },
+    complete: function () { tone(660, .14, 'triangle', .085); tone(990, .18, 'triangle', .075, .07); tone(1320, .1, 'sine', .045, .15); },
+    undo:     function () { tone(420, .12, 'sine', .06); tone(300, .14, 'sine', .05, .06); },
     clear:    function () {
-      [523, 659, 784, 1047].forEach(function (f, i) { tone(f, .3, 'triangle', .06, i * .1); });
+      [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, .34, 'triangle', .08, i * .09); });
     },
     levelup:  function () {
-      [440, 554, 659, 880, 1109].forEach(function (f, i) { tone(f, .34, 'sine', .065, i * .085); });
+      [440, 554, 659, 880, 1109, 1319].forEach(function (f, i) { tone(f, .36, 'sine', .082, i * .08); });
     },
-    unlock:   function () { tone(880, .2, 'triangle', .05); tone(1320, .26, 'triangle', .04, .1); },
-    tap:      function () { tone(520, .05, 'sine', .03); }
+    unlock:   function () { tone(880, .22, 'triangle', .07); tone(1320, .28, 'triangle', .06, .1); tone(1760, .16, 'sine', .04, .2); },
+    tap:      function () { tone(560, .06, 'sine', .045); }
   };
 
   function setMuted(v) {
