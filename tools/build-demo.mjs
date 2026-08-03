@@ -64,7 +64,13 @@ const tag = '<script>window.QUESTLY_SAVED_STATE=' + state + ';<\/script>';
 
 // 5) 基于 questly-offline.html 注入快照
 let html = read('questly-offline.html');
-html = html.replace(/<script>\s*window\.QUESTLY_SAVED_STATE[\s\S]*?<\/script>/i, '');
+// 只移除「真正的存档注入脚本」(window.QUESTLY_SAVED_STATE = {...} 且后接 { 对象字面量)，
+// 必须带 `= {`：
+//  - exam.js 的 exportPortable() 里有同名「正则字面量」window.QUESTLY_SAVED_STATE[...]（无 =），不匹配；
+//  - questly-offline.html 内联了 build-offline.mjs 源码，其中有字符串
+//    `window.QUESTLY_SAVED_STATE=' + state + '`（`=` 后是引号而非 {），不匹配。
+// 否则会把整段 <script> 连同末尾的 app.js（含密码锁）一并吞掉，导致 demo 无法解锁。
+html = html.replace(/<script>\s*window\.QUESTLY_SAVED_STATE\s*=\s*\{[\s\S]*?<\/script>/i, '');
 html = html.replace(/<head[^>]*>/i, (m) => m + '\n' + tag);
 
 const out = path.join(ROOT, 'questly-demo.html');
