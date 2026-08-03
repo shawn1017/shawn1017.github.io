@@ -815,3 +815,47 @@
   }
 
 })(window);
+
+/* ============================================================
+   启动密码锁（方案 C：仅威慑，非真安全）
+   密码以 djb2 哈希存储，避免明文出现在源码；改 LOCK_HASH 即可换密码。
+   注意：纯前端校验，资源仍可下载绕过，仅挡住随手打开的人。
+   ============================================================ */
+;(function () {
+  var LOCK_HASH = 'c73a3cdb'; // djb2('mingzhi')
+
+  function djb2(s) {
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return h.toString(16);
+  }
+
+  function unlock() {
+    var inp = document.getElementById('lock-input');
+    var err = document.getElementById('lock-err');
+    var v = (inp && inp.value) || '';
+    if (djb2(v) === LOCK_HASH) {
+      document.body.classList.remove('is-locked');
+      if (err) err.hidden = true;
+      if (inp) inp.value = '';
+    } else {
+      if (err) err.hidden = false;
+      if (inp) { inp.value = ''; inp.focus(); }
+    }
+  }
+
+  function bindLock() {
+    var btn = document.getElementById('lock-btn');
+    var inp = document.getElementById('lock-input');
+    if (!btn || !inp) return;
+    btn.addEventListener('click', unlock);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+    inp.focus();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindLock);
+  } else {
+    bindLock();
+  }
+})();

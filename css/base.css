@@ -228,3 +228,74 @@ a { color: var(--brand); text-decoration: none; }
     transition-duration: .001ms !important;
   }
 }
+
+/* ============================================================
+   lock screen — 启动密码锁（仅威慑，非真安全）
+   ============================================================ */
+body.is-locked .app,
+body.is-locked .bottomnav,
+body.is-locked .aurora,
+body.is-locked #fx-canvas,
+body.is-locked #float-root,
+body.is-locked #toast-root,
+body.is-locked #modal-root {
+  display: none !important;
+}
+
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #ECEAFE 0%, transparent 60%),
+    linear-gradient(160deg, #F5F6FB 0%, #EFEAFB 100%);
+}
+body:not(.is-locked) .lock { display: none; }
+
+.lock__card {
+  width: min(380px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 28px 30px;
+  text-align: center;
+  box-shadow: 0 24px 60px -24px rgba(79, 70, 229, .35);
+}
+.lock__mark { width: 52px; height: 52px; margin: 0 auto 14px; }
+.lock__mark svg { width: 100%; height: 100%; }
+.lock__title { font-size: 22px; margin: 0 0 4px; letter-spacing: .3px; }
+.lock__sub { margin: 0 0 22px; color: var(--text-3); font-size: 14px; }
+.lock__field { display: flex; gap: 10px; }
+.lock__input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.lock__input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.lock__btn {
+  flex: 0 0 auto;
+  height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--grad-brand);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .12s, opacity .12s;
+}
+.lock__btn:active { transform: translateY(1px); }
+.lock__err { margin: 14px 0 0; color: var(--danger); font-size: 13px; }

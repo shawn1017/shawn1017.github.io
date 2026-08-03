@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="css/exam.css">
 <link rel="stylesheet" href="css/animations.css">
 </head>
-<body>
+<body class="is-locked">
 
 <!-- ambient background -->
 <div class="aurora" aria-hidden="true">
@@ -133,6 +133,22 @@
 <div id="float-root" aria-hidden="true"></div>
 <div id="toast-root" role="status" aria-live="polite"></div>
 <div id="modal-root"></div>
+
+<!-- 启动密码锁（仅威慑，非真安全） -->
+<div class="lock" id="lock" role="dialog" aria-modal="true" aria-label="输入密码解锁">
+  <div class="lock__card">
+    <div class="lock__mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14.9 8.6l6.6.95-4.8 4.7 1.15 6.65L12 17.75 6.15 20.9 7.3 14.25 2.5 9.55l6.6-.95L12 2.5Z" fill="url(#lk)"/><defs><linearGradient id="lk" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#6366F1"/></linearGradient></defs></svg>
+    </div>
+    <h1 class="lock__title">Questly</h1>
+    <p class="lock__sub">输入密码以继续使用</p>
+    <div class="lock__field">
+      <input class="lock__input" id="lock-input" type="password" autocomplete="off" spellcheck="false" placeholder="密码" aria-label="密码" />
+      <button class="lock__btn" id="lock-btn" type="button">解锁</button>
+    </div>
+    <p class="lock__err" id="lock-err" hidden>密码错误，请重试</p>
+  </div>
+</div>
 
 <script src="js/store.js"></script>
 <script src="js/fx.js"></script>
