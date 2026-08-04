@@ -229,9 +229,10 @@
     var dup = 0; var seen = {};
     S.list.forEach(function (q) { seen[q.q] = (seen[q.q] || 0) + 1; });
     Object.keys(seen).forEach(function (k) { if (seen[k] > 1) dup++; });
+    var missingAnswer = S.list.filter(function (q) { return !q.answer || !q.answer.length; }).length;
     return {
       total: c.total, single: c.single, judge: c.judge, multi: c.multi,
-      needsReview: c.needsReview, duplicates: dup,
+      needsReview: c.needsReview, missingAnswer: missingAnswer, duplicates: dup,
       answered: c.answered, correct: c.correct, accuracy: c.accuracy
     };
   }

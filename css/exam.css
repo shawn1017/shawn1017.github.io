@@ -379,22 +379,115 @@
 .switch input[type=checkbox]:checked { background: var(--brand); }
 .switch input[type=checkbox]:checked::after { transform: translateX(16px); }
 
-/* ─────────── 题库导入检查 / 数据管理 ─────────── */
-.exam-imp { display: flex; flex-direction: column; }
+/* ─────────── 题库导入检查 ─────────── */
+.exam-imp { display: flex; flex-direction: column; gap: 14px; }
+.exam-imp__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, var(--brand-soft) 0%, #fff 100%);
+  border: 1px solid var(--border);
+}
+.exam-imp__total {
+  display: flex; align-items: baseline; gap: 10px;
+}
+.exam-imp__total b {
+  font-size: 36px; font-weight: 800; line-height: 1;
+  background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.exam-imp__total span { font-size: 14px; font-weight: 650; color: var(--text-2); }
+.exam-imp__kinds {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.exam-imp__kind {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  min-width: 0;
+}
+.exam-imp__kind b { font-size: 17px; font-weight: 760; color: var(--text); font-variant-numeric: tabular-nums; }
+.exam-imp__kind span { font-size: 11px; color: var(--text-3); }
+.exam-imp__rows { display: flex; flex-direction: column; gap: 8px; }
 .exam-imp__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 2px;
-  border-bottom: 1px solid var(--border-soft);
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
   font-size: 13px;
 }
-.exam-imp__row:last-child { border-bottom: 0; }
-.exam-imp__row span { color: var(--text-2); }
-.exam-imp__row b { font-weight: 740; font-variant-numeric: tabular-nums; }
-.exam-imp__row b.warn { color: var(--warn); }
-.exam-data { display: flex; flex-wrap: wrap; gap: 8px; }
-.exam-data .btn { flex: 1; min-width: 138px; }
+.exam-imp__row--warn {
+  background: var(--warn-soft);
+  border-color: rgba(245, 158, 11, .18);
+}
+.exam-imp__row span { color: var(--text-2); font-weight: 600; }
+.exam-imp__row b { font-weight: 780; font-variant-numeric: tabular-nums; color: var(--text); }
+.exam-imp__row--warn b { color: #B45309; }
+.exam-imp__note { font-size: 12px; line-height: 1.55; margin-top: 10px; }
+
+/* ─────────── 考试设置 ─────────── */
+.exam-set {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.exam-set .field { margin: 0; }
+.exam-set .field .input[type="date"],
+.exam-set .field .input[type="number"] { width: 100%; }
+.exam-set--mock { grid-template-columns: repeat(2, 1fr); }
+.exam-set__switches {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 14px 0;
+  padding: 4px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+}
+.exam-set__sw {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: background var(--t-fast);
+}
+.exam-set__sw:hover { background: var(--surface); }
+.exam-set__sw span:first-child {
+  font-size: 13px; font-weight: 620; color: var(--text-2);
+  flex: 1; min-width: 0;
+}
+.exam-set__sw .switch { flex: none; }
+
+/* ─────────── 数据管理 ─────────── */
+.exam-data { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.exam-data .btn { width: 100%; justify-content: center; min-width: 0; }
+
+@media (max-width: 760px) {
+  .exam-imp__hero { padding: 14px; }
+  .exam-imp__total b { font-size: 32px; }
+  .exam-imp__kinds { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .exam-imp__kind { padding: 8px 2px; border-radius: 10px; }
+  .exam-imp__kind b { font-size: 15px; }
+  .exam-imp__kind span { font-size: 10px; }
+  .exam-imp__row { padding: 11px 12px; }
+  .exam-imp__row span { word-break: keep-all; overflow-wrap: anywhere; }
+  .exam-set { grid-template-columns: 1fr; gap: 12px; }
+  .exam-data { grid-template-columns: 1fr; }
+}
 
 /* ─────────── 沉浸答题页 ─────────── */
 .page--play { max-width: none; width: 100%; margin: 0; min-height: 100dvh; display: flex; }

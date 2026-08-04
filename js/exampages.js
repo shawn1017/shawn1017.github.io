@@ -252,62 +252,84 @@
 
   function renderMock() {
     var s = exam.settings();
-    var html = '<div class="card exam-mock"><h3>模拟考试</h3>' +
-      '<p class="muted" style="margin-bottom:12px">以下为自定义模拟练习，不代表正式考试规则。</p>' +
-      '<div class="field"><label>单选题数量</label><input id="mk-single" type="number" value="20" min="0"></div>' +
-      '<div class="field"><label>判断题数量</label><input id="mk-judge" type="number" value="20" min="0"></div>' +
-      '<div class="field"><label>多选题数量</label><input id="mk-multi" type="number" value="10" min="0"></div>' +
-      '<div class="field"><label>考试时长（分钟）</label><input id="mk-time" type="number" value="30" min="1"></div>' +
-      '<div class="field"><label>目标正确率（%）</label><input id="mk-goal" type="number" value="80" min="1"></div>' +
+    var html = '<div class="card"><div class="card__head"><h3>模拟考试</h3></div><div class="card__body">' +
+      '<p class="muted" style="margin-bottom:14px">以下为自定义模拟练习，不代表正式考试规则。</p>' +
+      '<div class="exam-set exam-set--mock">' +
+      '<div class="field"><label>单选题数量</label><input class="input" id="mk-single" type="number" value="20" min="0"></div>' +
+      '<div class="field"><label>判断题数量</label><input class="input" id="mk-judge" type="number" value="20" min="0"></div>' +
+      '<div class="field"><label>多选题数量</label><input class="input" id="mk-multi" type="number" value="10" min="0"></div>' +
+      '<div class="field"><label>考试时长（分钟）</label><input class="input" id="mk-time" type="number" value="30" min="1"></div>' +
+      '<div class="field"><label>目标正确率（%）</label><input class="input" id="mk-goal" type="number" value="80" min="1"></div>' +
+      '</div>' +
       '<div class="exam-mock__opts">' +
       chk('mk-shufq', '打乱题目顺序', true) + chk('mk-shufo', '打乱选项顺序', true) +
       chk('mk-pw', '优先抽取错题', true) + chk('mk-em', '排除已掌握', false) +
       '</div>' +
-      '<button class="btn btn--primary btn--lg btn--block" data-ea="mock" style="margin-top:12px">' + I.target + '开始模拟考</button>' +
-      '</div>';
+      '<button class="btn btn--primary btn--lg btn--block" data-ea="mock" style="margin-top:14px">' + I.target + '开始模拟考</button>' +
+      '</div></div>';
     return html;
   }
-  function chk(id, label, on) { return '<label class="switch"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '> <span>' + label + '</span></label>'; }
+  function chk(id, label, on) { return '<label class="switch"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span></label>'; }
+  function chkRow(id, label, on) {
+    return '<label class="exam-set__sw"><span>' + esc(label) + '</span><span class="switch"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '></span></label>';
+  }
 
   function renderSettings() {
     var r = exam.importReport();
     var s = exam.settings();
     var html = '';
     // 导入检查
-    html += '<div class="card"><div class="card__head"><h3>题库导入检查</h3></div><div class="exam-imp">';
-    html += impRow('成功识别题目', r.total, 'ok');
-    html += impRow('单选题', r.single); html += impRow('判断题', r.judge); html += impRow('多选题', r.multi);
-    html += impRow('已作答', r.answered);
-    html += impRow('待人工校对（格式异常）', r.needsReview, r.needsReview ? 'warn' : 'ok');
-    html += impRow('缺少答案', r.needsReview, r.needsReview ? 'warn' : 'ok');
-    html += '</div><p class="muted" style="font-size:12px">原题库内容已原样保留，仅清理多余空格与换行；未修改任何法律名称、数字或答案。</p></div>';
+    html += '<div class="card"><div class="card__head"><h3>题库导入检查</h3></div><div class="card__body">';
+    html += '<div class="exam-imp">';
+    html += '<div class="exam-imp__hero">' +
+      '<div class="exam-imp__total"><b>' + fmt(r.total) + '</b><span>成功识别题目</span></div>' +
+      '<div class="exam-imp__kinds">' +
+        '<div class="exam-imp__kind"><b>' + fmt(r.single) + '</b><span>单选</span></div>' +
+        '<div class="exam-imp__kind"><b>' + fmt(r.judge) + '</b><span>判断</span></div>' +
+        '<div class="exam-imp__kind"><b>' + fmt(r.multi) + '</b><span>多选</span></div>' +
+        '<div class="exam-imp__kind"><b>' + fmt(r.answered) + '</b><span>已作答</span></div>' +
+      '</div>' +
+    '</div>';
+    html += '<div class="exam-imp__rows">' +
+      impRow('待人工校对（格式异常）', r.needsReview, r.needsReview ? 'warn' : 'ok') +
+      impRow('缺少答案', r.missingAnswer, r.missingAnswer ? 'warn' : 'ok') +
+    '</div>';
+    html += '</div><p class="muted exam-imp__note">原题库内容已原样保留，仅清理多余空格与换行；未修改任何法律名称、数字或答案。</p></div></div>';
 
     // 设置
     var examDate = s.examDate || '';
     var dailyMin = (typeof s.dailyMinutes === 'number') ? s.dailyMinutes : 45;
     var groupSize = (typeof s.groupSize === 'number') ? s.groupSize : 10;
-    html += '<div class="card"><div class="card__head"><h3>考试与学习计划</h3></div>';
-    html += '<div class="field"><label>考试日期</label><input id="set-date" type="date" value="' + esc(examDate) + '"></div>';
-    html += '<div class="field"><label>每天可学习（分钟）</label><input id="set-min" type="number" value="' + dailyMin + '"></div>';
-    html += '<div class="field"><label>每组题目数量</label><input id="set-group" type="number" value="' + groupSize + '"></div>';
-    html += '<div class="exam-mock__opts">' +
-      chk('set-inc', '包含已做对的题', s.includeCorrect) + chk('set-pw', '优先复习错题', s.prioritizeWrong) +
-      chk('set-sound', '开启答题音效', s.sound) + '</div>';
-    html += '<button class="btn btn--primary btn--block" data-ea="settings-save" style="margin-top:12px">保存设置</button></div>';
+    html += '<div class="card"><div class="card__head"><h3>考试与学习计划</h3></div><div class="card__body">';
+    html += '<div class="exam-set">' +
+      '<div class="field"><label>考试日期</label><input class="input" id="set-date" type="date" value="' + esc(examDate) + '"></div>' +
+      '<div class="field"><label>每天可学习（分钟）</label><input class="input" id="set-min" type="number" value="' + dailyMin + '" min="1"></div>' +
+      '<div class="field"><label>每组题目数量</label><input class="input" id="set-group" type="number" value="' + groupSize + '" min="1"></div>' +
+    '</div>';
+    html += '<div class="exam-set__switches">' +
+      chkRow('set-inc', '包含已做对的题', s.includeCorrect) +
+      chkRow('set-pw', '优先复习错题', s.prioritizeWrong) +
+      chkRow('set-sound', '开启答题音效', s.sound) +
+    '</div>';
+    html += '<button class="btn btn--primary btn--block" data-ea="settings-save">保存设置</button>';
+    html += '</div></div>';
 
     // 数据管理
-    html += '<div class="card"><div class="card__head"><h3>数据管理</h3></div><div class="exam-data">' +
-      '<button class="btn btn--primary" data-ea="export-portable">' + I.bolt + '导出可携带文件（含我的数据）</button>' +
-      '<button class="btn btn--outline" data-ea="export-json">' + I.down + '导出学习数据</button>' +
-      '<button class="btn btn--outline" data-ea="import-json">' + I.up + '导入数据</button>' +
-      '<button class="btn btn--outline" data-ea="reimport">重新导入题库</button>' +
-      '<button class="btn btn--danger" data-ea="reset-records">清空答题记录</button>' +
-      '<input type="file" id="exam-import-file" accept="application/json" hidden></div>' +
-      '<p class="muted" style="font-size:12px">「可携带文件」是一个自带你全部进度的单 HTML，直接发到手机用浏览器打开即可继续刷题；手机上的新进度会自动保存在本机。执行清空 / 重置前会二次确认，且无法恢复。</p></div>';
+    html += '<div class="card"><div class="card__head"><h3>数据管理</h3></div><div class="card__body">' +
+      '<div class="exam-data">' +
+        '<button class="btn btn--primary" data-ea="export-portable">' + I.bolt + '导出可携带文件</button>' +
+        '<button class="btn btn--outline" data-ea="export-json">' + I.down + '导出学习数据</button>' +
+        '<button class="btn btn--outline" data-ea="import-json">' + I.up + '导入数据</button>' +
+        '<button class="btn btn--outline" data-ea="reimport">重新导入题库</button>' +
+        '<button class="btn btn--danger" data-ea="reset-records">清空答题记录</button>' +
+      '</div>' +
+      '<input type="file" id="exam-import-file" accept="application/json" hidden>' +
+      '<p class="muted exam-imp__note">「可携带文件」是自带你全部进度的单 HTML，发到手机用浏览器打开即可继续刷题；手机上的新进度会自动保存在本机。执行清空 / 重置前会二次确认，且无法恢复。</p>' +
+    '</div></div>';
     return html;
   }
   function impRow(k, v, kind) {
-    return '<div class="exam-imp__row"><span>' + esc(k) + '</span><b class="' + (kind === 'warn' ? 'warn' : '') + '">' + v + '</b></div>';
+    return '<div class="exam-imp__row' + (kind === 'warn' ? ' exam-imp__row--warn' : '') + '"><span>' + esc(k) + '</span><b>' + fmt(v) + '</b></div>';
   }
 
   /* ============ 答题（沉浸页） ============ */
