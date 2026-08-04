@@ -263,8 +263,14 @@
   }
 
   /* ---------- 倒计时 ---------- */
+  function parseExamDate() {
+    var d = new Date(S.settings.examDate + 'T09:00:00');
+    if (isNaN(d.getTime())) d = new Date(DEFAULT_SETTINGS.examDate + 'T09:00:00');
+    if (isNaN(d.getTime())) d = new Date(Date.now() + 30 * dayMs());
+    return d;
+  }
   function examCountdown() {
-    var target = new Date(S.settings.examDate + 'T09:00:00');
+    var target = parseExamDate();
     var now = Date.now();
     var diff = Math.max(0, target - now);
     var days = Math.floor(diff / dayMs());
@@ -272,7 +278,7 @@
     return { days: days, hours: hours, ms: diff };
   }
   function daysLeft() {
-    var target = new Date(S.settings.examDate + 'T09:00:00');
+    var target = parseExamDate();
     var now = Date.now();
     return Math.max(0, Math.ceil((target - now) / dayMs()));
   }
@@ -313,7 +319,9 @@
     var c = counts();
     var remaining = c.total - c.answered;
     var dl = daysLeft();
+    if (!isFinite(dl) || dl < 1) dl = 1;
     var base = remaining > 0 ? Math.max(1, Math.ceil(remaining / Math.max(1, dl))) : 0;
+    if (!isFinite(base)) base = 0;
     var g = S.settings.groupSize || 10;
     var parts = [
       { label: '上午', n: Math.round(base * 0.35) },
@@ -321,6 +329,7 @@
       { label: '晚间', n: Math.round(base * 0.25) },
       { label: '睡前错题', n: Math.max(0, base - Math.round(base * 0.9)) }
     ];
+    parts.forEach(function (p) { if (!isFinite(p.n) || p.n < 0) p.n = 0; });
     var sum = parts.reduce(function (a, p) { return a + p.n; }, 0);
     if (sum < base) parts[2].n += base - sum;
     return { target: base, group: g, parts: parts, minutes: S.settings.dailyMinutes || 60 };

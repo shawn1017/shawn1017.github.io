@@ -7,6 +7,7 @@
   /* ============ 工具 ============ */
   function $(s, r) { return (r || document).querySelector(s); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function fmt(v) { return (v == null || (typeof v === 'number' && !isFinite(v))) ? '0' : v; }
   function fmtMin(m) { return (m || 0) + ' 分钟'; }
   function typeName(t) { return t === 'single' ? '单选题' : t === 'judge' ? '判断题' : '多选题'; }
   function ansLabel(q) {
@@ -83,7 +84,7 @@
 
     return html;
   }
-  function stat(v, l) { return '<div class="exam-stat"><b>' + esc(v) + '</b><span>' + esc(l) + '</span></div>'; }
+  function stat(v, l) { return '<div class="exam-stat"><b>' + esc(fmt(v)) + '</b><span>' + esc(l) + '</span></div>'; }
 
   function renderCenterBody(c, pi, plan) {
     var t = exam.todayStat();
@@ -91,11 +92,11 @@
     html += '<div class="exam-grid__main">';
 
     // 今日计划
-    html += '<div class="card exam-plan"><div class="card__head"><h3>今日备考计划</h3><span class="muted">目标 ' + plan.target + ' 题 · 约 ' + fmtMin(plan.minutes) + '</span></div>';
-    html += '<div class="exam-plan__bar"><i style="width:' + t.pct + '%"></i></div>';
-    html += '<div class="exam-plan__done">今日已完成 <b>' + t.done + '</b> / ' + plan.target + ' 题 · 正确率 ' + t.rate + '% · 连续学习 ' + t.streak + ' 天</div>';
+    html += '<div class="card exam-plan"><div class="card__head"><h3>今日备考计划</h3><span class="muted">目标 ' + fmt(plan.target) + ' 题 · 约 ' + fmtMin(plan.minutes) + '</span></div>';
+    html += '<div class="exam-plan__bar"><i style="width:' + fmt(t.pct) + '%"></i></div>';
+    html += '<div class="exam-plan__done">今日已完成 <b>' + fmt(t.done) + '</b> / ' + fmt(plan.target) + ' 题 · 正确率 ' + fmt(t.rate) + '% · 连续学习 ' + fmt(t.streak) + ' 天</div>';
     html += '<div class="exam-plan__grid">';
-    plan.parts.forEach(function (p) { html += '<div class="exam-plan__cell"><b>' + p.n + '</b><span>' + p.label + '</span></div>'; });
+    plan.parts.forEach(function (p) { html += '<div class="exam-plan__cell"><b>' + fmt(p.n) + '</b><span>' + esc(p.label) + '</span></div>'; });
     html += '</div><button class="btn btn--soft btn--block" data-ea="continue" style="margin-top:12px">' + I.bolt + '开始今日闯关</button></div>';
 
     // 快速复习入口
