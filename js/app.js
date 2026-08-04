@@ -1035,7 +1035,7 @@
    注意：纯前端校验，资源仍可下载绕过，仅挡住随手打开的人。
    ============================================================ */
 ;(function () {
-  var LOCK_HASH = 'c73a3cdb'; // djb2('mingzhi')
+  var LOCK_HASH = 'd900b0c'; // djb2('LXYAI')
 
   function djb2(s) {
     var h = 5381;
