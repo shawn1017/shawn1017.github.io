@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f7fb" />
+    <meta name="description" content="个人工作与企业 AI 实践工作台桌面版" />
+    <title>AI实践工作台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">AI</span>
+          <span><b>AI实践工作台</b><small>个人工作与企业实践</small></span>
+        </div>
+        <nav class="nav" aria-label="主导航">
+          <button data-route="dashboard" class="nav-item active"><span>⌂</span>今日工作台</button>
+          <button data-route="opportunities" class="nav-item"><span>✦</span>AI机会池</button>
+          <button data-route="content" class="nav-item"><span>▤</span>内容中心</button>
+          <button data-route="projects" class="nav-item"><span>▣</span>项目与任务</button>
+          <button data-route="review" class="nav-item"><span>✓</span>每日复盘</button>
+          <button data-route="settings" class="nav-item"><span>⚙</span>数据与设置</button>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="local-note"><i></i><span><b>浏览器本地模式</b><small>数据不会上传 GitHub</small></span></div>
+          <button class="ghost-btn wide" data-action="export">导出 JSON 备份</button>
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <label class="search"><span>⌕</span><input id="global-search" placeholder="搜索当前页面…" /></label>
+          <div class="topbar-right">
+            <span class="date" id="today-label"></span>
+            <button class="primary-btn" id="quick-create">＋ 新建</button>
+          </div>
+        </header>
+        <div id="page" class="page" aria-live="polite"></div>
+      </main>
+    </div>
+    <div id="toast" class="toast" hidden></div>
+    <div id="modal-root"></div>
+    <input id="import-file" type="file" accept="application/json,.json" hidden />
+    <script src="app.js"></script>
+  </body>
+</html>
