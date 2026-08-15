@@ -4,36 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f7fb" />
-    <meta name="description" content="个人工作与企业 AI 实践工作台桌面版" />
-    <title>AI实践工作台</title>
+    <meta name="description" content="只记录待办事项和时间的桌面工作台" />
+    <title>我的待办</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <span class="brand-mark">AI</span>
-          <span><b>AI实践工作台</b><small>个人工作与企业实践</small></span>
+          <b>我的待办</b>
+          <small>事项与时间</small>
         </div>
         <nav class="nav" aria-label="主导航">
-          <button data-route="dashboard" class="nav-item active"><span>⌂</span>今日工作台</button>
-          <button data-route="opportunities" class="nav-item"><span>✦</span>AI机会池</button>
-          <button data-route="content" class="nav-item"><span>▤</span>内容中心</button>
-          <button data-route="projects" class="nav-item"><span>▣</span>项目与任务</button>
-          <button data-route="review" class="nav-item"><span>✓</span>每日复盘</button>
-          <button data-route="settings" class="nav-item"><span>⚙</span>数据与设置</button>
+          <button data-route="today" class="nav-item active">今日待办</button>
+          <button data-route="all" class="nav-item">全部事项</button>
+          <button data-route="completed" class="nav-item">已完成</button>
+          <button data-route="settings" class="nav-item">数据与设置</button>
         </nav>
         <div class="sidebar-foot">
-          <div class="local-note"><i></i><span><b>浏览器本地模式</b><small>数据不会上传 GitHub</small></span></div>
-          <button class="ghost-btn wide" data-action="export">导出 JSON 备份</button>
+          <div class="local-note">
+            <b>保存在当前浏览器</b>
+            <small>不会上传个人数据</small>
+          </div>
+          <button class="ghost-btn wide" data-action="export">导出备份</button>
         </div>
       </aside>
       <main class="main">
         <header class="topbar">
-          <label class="search"><span>⌕</span><input id="global-search" placeholder="搜索当前页面…" /></label>
+          <label class="search">
+            <span>搜索</span>
+            <input id="global-search" placeholder="搜索待办事项…" />
+          </label>
           <div class="topbar-right">
             <span class="date" id="today-label"></span>
-            <button class="primary-btn" id="quick-create">＋ 新建</button>
+            <button class="primary-btn" id="quick-create">新建待办</button>
           </div>
         </header>
         <div id="page" class="page" aria-live="polite"></div>
